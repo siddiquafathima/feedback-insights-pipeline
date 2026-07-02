@@ -9,6 +9,19 @@ Companies collect thousands of reviews and support tickets. Nobody reads them al
 This pipeline reads them automatically, extracts sentiment/category/urgency, and
 serves the results as structured data a product team can actually query and act on.
 
+## Demo
+
+![API docs](screenshots/docs.png)
+
+Sentiment and category breakdown:
+![Summary endpoint](screenshots/summary-endpoint.png)
+
+Structured issue extraction from raw feedback text:
+![Issues endpoint](screenshots/issues-endpoint.png)
+
+
+
+
 ## Architecture
 
 ```
@@ -28,6 +41,7 @@ CSV / raw feedback
       v
 [main.py] --FastAPI endpoints--> /insights/summary, /insights/issues
 ```
+
 
 ## The core engineering problem this solves
 
