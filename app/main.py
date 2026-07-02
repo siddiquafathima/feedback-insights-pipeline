@@ -11,19 +11,20 @@ from sqlalchemy import func
 from collections import Counter
 
 import os
+import threading
 from app.database import get_db, FeedbackDB, init_db, SessionLocal
 from app.models import InsightsSummary
 
 app = FastAPI(title="Customer Feedback Insights API")
 
 
-@app.on_event("startup")
-def startup():
-    init_db()
-
-    # Auto-seed with sample data if the database is empty.
-    # This makes the deployed instance show real data immediately
-    # without requiring a manual ingestion run on the server.
+def _seed_in_background():
+    """
+    Runs the LLM ingestion pipeline in a separate thread so it doesn't
+    block the app from starting up and accepting requests. Without this,
+    Railway's health check can time out waiting for the app to respond
+    while 15 sequential LLM calls are still running.
+    """
     db = SessionLocal()
     try:
         count = db.query(FeedbackDB).count()
@@ -31,10 +32,18 @@ def startup():
             csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sample_data.csv")
             if os.path.exists(csv_path):
                 from app.ingestion import ingest_csv
-                print("Database empty — auto-seeding from sample_data.csv...")
+                print("Database empty — auto-seeding from sample_data.csv in background...")
                 ingest_csv(csv_path)
+                print("Background seeding complete.")
     finally:
         db.close()
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
+    thread = threading.Thread(target=_seed_in_background, daemon=True)
+    thread.start()
 
 
 @app.get("/health")
