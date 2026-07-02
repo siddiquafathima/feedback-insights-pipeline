@@ -1,0 +1,16 @@
+id,source,text,created_at
+1,app_store,"The app keeps crashing every time I try to upload a photo. Really frustrating, been happening for 2 weeks now.",2026-06-20
+2,app_store,"Love the new dark mode! But checkout is way too slow, took 45 seconds to process my payment.",2026-06-20
+3,support_ticket,"Customer support was amazing, resolved my issue in 5 minutes.",2026-06-21
+4,app_store,"Cannot log in after resetting my password. This is the third time this month.",2026-06-21
+5,app_store,"Great UI redesign, much cleaner than before.",2026-06-22
+6,support_ticket,"My order was delayed by 5 days with no notification. Very disappointed.",2026-06-22
+7,app_store,"Would love to see a dark mode option and better notification controls.",2026-06-23
+8,support_ticket,"App is fast and reliable, no complaints.",2026-06-23
+9,app_store,"Payment failed twice but money was deducted both times. Need urgent refund.",2026-06-24
+10,app_store,"The search feature is broken, returns irrelevant results most of the time.",2026-06-24
+11,support_ticket,"Really appreciate how quickly the team fixed my billing issue.",2026-06-25
+12,app_store,"App crashes on startup after the latest update. Unusable right now.",2026-06-25
+13,app_store,"Checkout process is confusing, took me three tries to complete an order.",2026-06-26
+14,support_ticket,"Delivery was on time and packaging was great.",2026-06-26
+15,app_store,"Notifications are too frequent, please add a way to customize them.",2026-06-27
