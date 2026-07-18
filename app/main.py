@@ -5,13 +5,12 @@ Run with: uvicorn app.main:app --reload
 Docs auto-generated at: http://localhost:8000/docs
 """
 
-from fastapi import FastAPI, Depends, Query
-from sqlalchemy.orm import Session
-from sqlalchemy import func
-from collections import Counter
-
 import os
 import threading
+from fastapi import FastAPI, Depends, Query
+from sqlalchemy.orm import Session
+from collections import Counter
+
 from app.database import get_db, FeedbackDB, init_db, SessionLocal
 from app.models import InsightsSummary
 
@@ -21,9 +20,7 @@ app = FastAPI(title="Customer Feedback Insights API")
 def _seed_in_background():
     """
     Runs the LLM ingestion pipeline in a separate thread so it doesn't
-    block the app from starting up and accepting requests. Without this,
-    Railway's health check can time out waiting for the app to respond
-    while 15 sequential LLM calls are still running.
+    block the app from starting up and accepting requests.
     """
     db = SessionLocal()
     try:
@@ -102,3 +99,45 @@ def get_failed(db: Session = Depends(get_db)):
     """Records that failed LLM extraction after retries - for manual review."""
     results = db.query(FeedbackDB).filter(FeedbackDB.processing_failed == 1).all()
     return [{"id": r.id, "text": r.text, "source": r.source} for r in results]
+
+
+@app.get("/insights/analytics/top-category-by-week")
+def get_top_category_by_week():
+    """Most common feedback category per week, via window function ranking."""
+    from app.analytics import top_category_by_week
+    rows = top_category_by_week()
+    return [{"week": str(r[0]), "category": r[1], "count": r[2]} for r in rows]
+
+
+@app.get("/insights/analytics/sentiment-trend")
+def get_sentiment_trend():
+    """3-day rolling average of negative sentiment ratio."""
+    from app.analytics import sentiment_trend_moving_average
+    rows = sentiment_trend_moving_average()
+    return [
+        {
+            "day": str(r[0]),
+            "total": r[1],
+            "negative_count": r[2],
+            "negative_ratio": float(r[3]),
+            "negative_ratio_3day_avg": float(r[4]),
+        }
+        for r in rows
+    ]
+
+
+@app.get("/insights/analytics/stale-urgent-issues")
+def get_stale_urgent_issues():
+    """High-urgency issues older than the average age of high-urgency issues."""
+    from app.analytics import urgent_issues_needing_attention
+    rows = urgent_issues_needing_attention()
+    return [
+        {
+            "id": r[0],
+            "source": r[1],
+            "issue_summary": r[2],
+            "category": r[3],
+            "age_days": float(r[4]),
+        }
+        for r in rows
+    ]
